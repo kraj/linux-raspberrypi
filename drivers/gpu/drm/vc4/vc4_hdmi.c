@@ -1682,7 +1682,8 @@ static int vc4_hdmi_bind(struct device *dev, struct device *master, void *data)
 	}
 
 	/* HDMI core must be enabled. */
-	if (!(HDMI_READ(HDMI_M_CTL) & VC4_HD_M_ENABLE)) {
+	if (!variant->is_vc5 &&
+	    !(HDMI_READ(HDMI_M_CTL) & VC4_HD_M_ENABLE)) {
 		HDMI_WRITE(HDMI_M_CTL, VC4_HD_M_SW_RST);
 		udelay(1);
 		HDMI_WRITE(HDMI_M_CTL, 0);
@@ -1767,6 +1768,7 @@ static int vc4_hdmi_dev_remove(struct platform_device *pdev)
 
 static const struct vc4_hdmi_variant bcm2835_variant = {
 	.max_pixel_clock	= 162000000,
+	.is_vc5			= false,
 	.audio_available	= true,
 	.cec_available		= true,
 	.registers		= vc4_hdmi_fields,
@@ -1789,6 +1791,7 @@ static const struct vc4_hdmi_variant bcm2835_variant = {
 
 static const struct vc4_hdmi_variant bcm2711_hdmi0_variant = {
 	.id			= 0,
+	.is_vc5			= true,
 	.audio_available	= true,
 	.max_pixel_clock	= 297000000,
 	.registers		= vc5_hdmi_hdmi0_fields,
@@ -1817,6 +1820,7 @@ static const struct vc4_hdmi_variant bcm2711_hdmi0_variant = {
 static const struct vc4_hdmi_variant bcm2711_hdmi1_variant = {
 	.id			= 1,
 	.audio_available	= true,
+	.is_vc5			= true,
 	.max_pixel_clock	= 297000000,
 	.registers		= vc5_hdmi_hdmi1_fields,
 	.num_registers		= ARRAY_SIZE(vc5_hdmi_hdmi1_fields),

@@ -39,6 +39,9 @@ struct vc4_hdmi_variant {
 	 */
 	unsigned int id;
 
+	/* Set to true the device is vc5 style */
+	bool is_vc5;
+
 	/* Set to true when the audio support is available */
 	bool audio_available;
 
