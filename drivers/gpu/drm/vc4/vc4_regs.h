@@ -677,6 +677,10 @@
 # define VC5_HDMI1_CPU_HOTPLUG_CONN		BIT(10)
 # define VC5_HDMI1_CPU_HOTPLUG_REM		BIT(11)
 
+/* Set retry count on transmit without ACK */
+# define VC4_HDMI_CEC_AUTO_RETRY_MASK		VC4_MASK(25, 24)
+# define VC4_HDMI_CEC_AUTO_RETRY_SHIFT		24
+
 /* Debug: Current receive value on the CEC pad. */
 # define VC4_HD_CECRXD				BIT(9)
 /* Debug: Override CEC output to 0. */

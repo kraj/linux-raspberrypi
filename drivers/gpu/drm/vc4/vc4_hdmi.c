@@ -1251,8 +1251,13 @@ static irqreturn_t vc4_cec_irq_handler_thread(int irq, void *priv)
 		 * This CEC implementation makes 1 retry, so if we
 		 * get a NACK, then that means it made 2 attempts.
 		 */
+		u32 retries = 1;
+		if (vc4_hdmi->variant->is_vc5)
+			retries = (HDMI_READ(HDMI_CEC_CNTRL_6) & VC4_HDMI_CEC_AUTO_RETRY_MASK)
+				  >> VC4_HDMI_CEC_AUTO_RETRY_SHIFT;
+
 		cec_transmit_done(vc4_hdmi->cec_adap, CEC_TX_STATUS_NACK,
-				  0, 2, 0, 0);
+				  0, retries + 1, 0, 0);
 	}
 	return IRQ_HANDLED;
 }
@@ -1368,6 +1373,14 @@ static int vc4_hdmi_cec_adap_transmit(struct cec_adapter *adap, u8 attempts,
 	if (msg->len > 16) {
 		DRM_ERROR("Attempting to transmit too much data (%d)\n", msg->len);
 		return -ENOMEM;
+	}
+	if (vc4_hdmi->variant->is_vc5) {
+		if (attempts > 3)
+			attempts = 3;
+		val = HDMI_READ(HDMI_CEC_CNTRL_6);
+		val &= ~VC4_HDMI_CEC_AUTO_RETRY_MASK;
+		val |= attempts << VC4_HDMI_CEC_AUTO_RETRY_SHIFT;
+		HDMI_WRITE(HDMI_CEC_CNTRL_6, val);
 	}
 	for (i = 0; i < msg->len; i += 4)
 		HDMI_WRITE(HDMI_CEC_TX_DATA_1 + (i>>2),
