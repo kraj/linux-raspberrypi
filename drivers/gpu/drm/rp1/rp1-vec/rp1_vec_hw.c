@@ -324,6 +324,26 @@ static const struct rp1vec_hwmode rp1vec_hwmodes[3][2][2] = {
 	},
 };
 
+/* Based on Andrew H's 405-line driver @ 9MHz pixclk giving 720x378 */
+static const struct rp1vec_hwmode vintage_405line_mode = {
+	.total_cols = 724,
+	.rows_per_field = 189,
+	.ref_hfp = 14,
+	.ref_vfp = 0,
+	.interlaced = true,
+	.first_field_odd = false,
+	.yuv_scaling = 0x1c800000,
+	.back_end_regs = {
+		0x06d528c5, 0x06f61418, 0x14d503cc, 0x00000000,
+		0x000010de, 0x00000000, 0x00000007, 0x00000000,
+		0x00000000, 0x00000000, 0x00000000, 0x00000000,
+		0x00da0195, 0x000f00ca, 0x00cb00d9, 0x000c0195,
+		0x00000000, 0x007bffff, 0x3b1389d8, 0x00000000,
+		0x02000200, 0x00000000, 0x00000000, 0x00000000,
+		0x0be20200, 0x20f0f800, 0x265c7f00, 0x000842fa,
+	},
+};
+
 void rp1vec_hw_setup(struct rp1_vec *vec,
 		     u32 in_format,
 		     struct drm_display_mode const *mode,
@@ -335,12 +355,19 @@ void rp1vec_hw_setup(struct rp1_vec *vec,
 
 	/* Pick the appropriate "base" mode, which we may modify */
 	mode_ilaced = !!(mode->flags & DRM_MODE_FLAG_INTERLACE);
-	if (mode->vtotal >= 272 * (1 + mode_ilaced))
-		mode_family = 1;
-	else
-		mode_family = (tvstd == RP1VEC_TVSTD_PAL_M || tvstd == RP1VEC_TVSTD_PAL60) ? 2 : 0;
 	mode_narrow = (mode->clock >= 14336);
-	hwm = &rp1vec_hwmodes[mode_family][mode_ilaced][mode_narrow];
+	if (mode->vtotal == 405 && mode_ilaced) { /* XXXperimental */
+		hwm = &vintage_405line_mode;
+		mode_family = 1;
+	} else {
+		if (mode->vtotal >= 272 * (1 + mode_ilaced))
+			mode_family = 1;
+		else if (tvstd == RP1VEC_TVSTD_PAL_M || tvstd == RP1VEC_TVSTD_PAL60)
+			mode_family = 2;
+		else
+			mode_family = 0;
+		hwm = &rp1vec_hwmodes[mode_family][mode_ilaced][mode_narrow];
+	}
 	dev_info(&vec->pdev->dev,
 		 "%s: in_fmt=\'%c%c%c%c\' mode=%dx%d%s [%d%d%d] tvstd=%d (%s)",
 		__func__, in_format, in_format >> 8, in_format >> 16, in_format >> 24,

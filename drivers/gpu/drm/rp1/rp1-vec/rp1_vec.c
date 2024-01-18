@@ -231,8 +231,23 @@ static const struct drm_display_mode rp1vec_modes[4] = {
 	}
 };
 
+#define USE_405_LINE_MODE
+
 static int rp1vec_connector_get_modes(struct drm_connector *connector)
 {
+#ifdef USE_405_LINE_MODE
+	static const struct drm_display_mode themode = {
+		DRM_MODE("720x378i", DRM_MODE_TYPE_DRIVER, 9000,
+			 720, 720 + 32, 720 + 32 + 90, 889, 0,
+			 378, 378 + 0,  378 + 0 + 8, 405, 0,
+			 DRM_MODE_FLAG_INTERLACE)
+	};
+
+	drm_mode_probed_add(connector,
+			    drm_mode_duplicate(connector->dev, &themode));
+
+	return 1;
+#else
 	struct rp1_vec *vec = container_of(connector, struct rp1_vec, connector);
 	bool ok525 = RP1VEC_TVSTD_SUPPORT_525(vec->tv_norm);
 	bool ok625 = RP1VEC_TVSTD_SUPPORT_625(vec->tv_norm);
@@ -265,6 +280,7 @@ static int rp1vec_connector_get_modes(struct drm_connector *connector)
 	}
 
 	return n;
+#endif
 }
 
 static void rp1vec_connector_reset(struct drm_connector *connector)
@@ -314,6 +330,11 @@ static enum drm_mode_status rp1vec_mode_valid(struct drm_device *dev,
 		return MODE_BAD;
 
 	/* Check lines, frame period (ms) and vertical size limit */
+#ifdef USE_405_LINE_MODE
+	if (vtotal_full == 405 && !prog &&
+	    vdisplay_full <= 378)
+		goto vgood;
+#endif
 	if (vtotal_full >= 524 && vtotal_full <= 526 &&
 	    mode->htotal * vtotal_full > 33 * mode->clock &&
 	    mode->htotal * vtotal_full < 34 * mode->clock &&
@@ -328,6 +349,10 @@ static enum drm_mode_status rp1vec_mode_valid(struct drm_device *dev,
 
 vgood:
 	/* Check pixel rate (kHz) and horizontal size limit */
+#ifdef USE_405_LINE_MODE
+	if (mode->clock == 9000 && mode->hdisplay <= 720)
+		return MODE_OK;
+#endif
 	if (mode->clock == 13500 && mode->hdisplay <= 720)
 		return MODE_OK;
 	if (mode->clock >= 15428 && mode->clock <= 15429 &&
