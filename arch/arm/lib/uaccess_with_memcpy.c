@@ -136,7 +136,7 @@ pin_page_for_read(const void __user *_addr, pte_t **ptep, spinlock_t **ptlp)
 	return 1;
 }
 
-unsigned long noinline
+static unsigned long noinline
 __copy_to_user_memcpy(void __user *to, const void *from, unsigned long n)
 {
 	unsigned long ua_flags;
@@ -184,7 +184,7 @@ out:
 	return n;
 }
 
-unsigned long noinline
+static unsigned long noinline
 __copy_from_user_memcpy(void *to, const void __user *from, unsigned long n)
 {
 	unsigned long ua_flags;
