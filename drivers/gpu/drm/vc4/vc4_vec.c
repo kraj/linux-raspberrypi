@@ -367,7 +367,7 @@ static const struct drm_prop_enum_list legacy_tv_mode_names[] = {
 	{ VC4_VEC_TV_MODE_SECAM, "SECAM", },
 };
 
-enum drm_connector_tv_mode
+static enum drm_connector_tv_mode
 vc4_vec_get_default_mode(struct drm_connector *connector)
 {
 	if (connector->cmdline_mode.tv_mode_specified) {

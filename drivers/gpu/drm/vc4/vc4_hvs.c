@@ -827,7 +827,7 @@ static bool vc4_hvs_frcnt_lte(u8 cnt1, u8 cnt2)
 	return (s8)((cnt1 << 2) - (cnt2 << 2)) <= 0;
 }
 
-bool vc4_hvs_check_channel_active(struct vc4_hvs *hvs, unsigned int fifo)
+static bool vc4_hvs_check_channel_active(struct vc4_hvs *hvs, unsigned int fifo)
 {
 	struct vc4_dev *vc4 = hvs->vc4;
 	struct drm_device *drm = &vc4->base;
