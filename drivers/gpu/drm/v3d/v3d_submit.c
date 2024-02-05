@@ -243,6 +243,9 @@ v3d_job_init(struct v3d_dev *v3d, struct drm_file *file_priv,
 			goto fail_deps;
 	}
 
+	mutex_init(&v3d->clk_lock);
+	INIT_DELAYED_WORK(&v3d->clk_down_work, v3d_clock_down_work);
+
 	v3d_clock_up_get(v3d);
 	kref_init(&job->refcount);
 
