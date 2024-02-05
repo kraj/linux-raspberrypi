@@ -761,7 +761,7 @@ static unsigned int __vc6_lbm_size(const struct drm_plane_state *state)
 		return vc4_lbm_channel_size(state, 0);
 }
 
-u32 vc4_lbm_size(struct drm_plane_state *state)
+static u32 vc4_lbm_size(struct drm_plane_state *state)
 {
 	struct vc4_plane_state *vc4_state = to_vc4_plane_state(state);
 	struct vc4_dev *vc4 = to_vc4_dev(state->plane->dev);
