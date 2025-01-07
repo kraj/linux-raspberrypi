@@ -1320,10 +1320,11 @@ static int brcm_pcie_setup(struct brcm_pcie *pcie)
 		pcie->msi_target_addr = BRCM_MSI_TARGET_ADDR_GT_4GB;
 
 
-	/* Don't advertise L0s capability if 'aspm-no-l0s' */
-	aspm_support = PCIE_LINK_STATE_L1;
+	/* Always advertise L1 capability */
+	aspm_support = BIT(1);
+	/* Advertise L0s capability unless 'aspm-no-l0s' is set */
 	if (!of_property_read_bool(pcie->np, "aspm-no-l0s"))
-		aspm_support |= PCIE_LINK_STATE_L0S;
+		aspm_support |= BIT(0);
 	tmp = readl(base + PCIE_RC_CFG_PRIV1_LINK_CAPABILITY);
 	u32p_replace_bits(&tmp, aspm_support,
 		PCIE_RC_CFG_PRIV1_LINK_CAPABILITY_ASPM_SUPPORT_MASK);
