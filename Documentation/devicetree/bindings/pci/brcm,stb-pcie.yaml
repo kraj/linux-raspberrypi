@@ -84,6 +84,11 @@ properties:
     $ref: /schemas/types.yaml#/definitions/string
     enum: [ safe, no-l1ss, default ]
 
+  brcm,fifo-qos-map:
+    description: 2712 only. Each nibble assigns all per-TC FIFOs an AXI
+      priority based on fullness (backpressure signalling).
+      Mutually exclusive with vdm-qos-map.
+
   brcm,scb-sizes:
     description: u64 giving the 64bit PCIe memory
       viewport size of a memory controller.  There may be up to
@@ -95,6 +100,12 @@ properties:
     $ref: /schemas/types.yaml#/definitions/uint64-array
     minItems: 1
     maxItems: 3
+
+  brcm,vdm-qos-map:
+    description: 2712 only. Each nibble assigns each per-TC FIFO a base AXI
+      priority with elevation depending on Vendor Messages from the EP -
+      specifically, RP1.
+      Mutually exclusive with fifo-qos-map.
 
   resets:
     minItems: 1
